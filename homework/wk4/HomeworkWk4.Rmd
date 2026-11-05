@@ -12,6 +12,46 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r}
+library(sf) # Handling shapefiles 
+library(tidyverse)
+library(countrycode)
 
 ```
+
+
+
+```{r}
+
+# Loading the data
+gii <- read_csv("homework/wk4/HDR25_Composite_indices_complete_time_series.csv",na = c("NULL"),
+                locale = locale(encoding = "latin1"))
+
+# Extracting the columns of interest 
+
+
+gii_10_19 <- gii %>% select(iso3, gii_2010, gii_2019)
+
+
+gii_10_19 <- gii_10_19 %>% 
+  mutate(diference_10_19 = gii_2010 - gii_2019) %>%
+  mutate(ISO2 = countrycode(iso3, origin = "iso3c", destination = "iso2c"))
+
+
+```
+Adding the data to the world
+```{r}
+countries <- st_read("homework/wk4/World_Countries_(Generalized)_2173680399808997149.geojson")
+```
+```{r}
+joined <- countries %>%
+  left_join(gii_10_19, by = c("ISO" = "ISO2"))
+```
+
+
+
+```{r}
+joined %>% st_write("homework/wk4/World_Countries_v3.gpkg")
+```
+
+
 
