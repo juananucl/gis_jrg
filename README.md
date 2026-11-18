@@ -1,2 +1,2 @@
 # gis_jrg
-Repo for GIS UCL
+Repo for GIS UCL made by Juan Andres Rivera
