@@ -1,5 +1,5 @@
 ---
-title: "PracticeSession02"
+title: "PracticeSession 02"
 output: html_document
 date: "2026-11-10"
 ---
@@ -62,7 +62,7 @@ censo_ciudad <-  censo_gt %>% select(MUNICIPIO, LUGAR_POBLADO, NOMBRE_LUGAR_POBL
 ```
 
 
-We are going to group by our zone to obtain the summary of statistics 
+We are going to group by zone to obtain the summary of statistics 
 
 ```{r}
 
