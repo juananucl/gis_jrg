@@ -1,0 +1,121 @@
+---
+title: "Homework_1"
+output: html_document
+date: "2026-10-14"
+---
+
+In this assignment we joined the field of the employees working in 2018 from the NZ
+census data to the shapefile of the provinces of NZ 
+
+#IMPORTANT: IN THIS EXAMPLEI CHANGED THE WAY THE markdown file works with paths so that 
+#the directory is not the location of the file but rather the location of the project
+#if it was the location of the file then the path would have been only the .csv file name 
+#because the .csv and the mark down file are in the same place. 
+
+```{r}
+library(tidyverse)
+paid_workers_csv <- read_csv("homework/wk1/2018_paid_workers.csv")  
+
+```
+#To load the shapefile I just look for the folder and only include in my var the .shp file
+#but I do need all of the other files in my folder
+```{r}
+library(sf)
+# my data is within my homework wk1 file
+nz_shape <- st_read("homework/wk1/statsnz-territorial-authority-2018-generalised-SHP/territorial-authority-2018-generalised.shp")
+```
+# Important to always load the library and then we can start working with it
+```{r}
+library(sf)
+nz_shape %>% 
+  st_geometry() %>%
+  plot()
+```
+
+# Merging the data using the column from my csv and the column from the shp file I want to Join 
+# The shp has the TA2018_V1_
+# The csv has the Area_Code
+
+# IMPORTANT: because when we used the merge function, the . stands for what was previously defined meaning the shapefile of new zealand, and then the csv. So x is for the column of the .shp and y for the csv
+
+```{r}
+nz_updated_shape <- nz_shape%>%
+  merge(.,
+        paid_workers_csv,
+        by.x="TA2018_V1_", 
+        by.y="Area_Code")
+```
+
+
+# Ploting the new shapefile with the new column appended
+```{r}
+library(tmap)
+tmap_mode("plot")
+# change the fill to your column name if different
+nz_updated_shape %>%
+  qtm(.,fill = "Paid_employee_2018")
+```
+# Histrogram
+```{r}
+hist(nz_updated_shape$Paid_employee_2018,breaks=30, main="Histogram of paid employees per Territorial Authority Area")
+```
+```{r}
+# 1. Create a new column with the log of the values
+# after the $ is the name of the column I chose (before <-)
+nz_updated_shape$log_Paid_employee_2018 <- log(nz_updated_shape$Paid_employee_2018)
+
+# 2. Plot the histogram of the new column
+# In this case my new colums was called log_Paid_employee_2018
+hist(nz_updated_shape$log_Paid_employee_2018,
+     breaks = 30,
+     main = "Histogram of log of paid employees per Territorial Authority Area")
+```
+# Map of the log function 
+```{r}
+library(tmap)
+tmap_mode("plot")
+# I choose to plot my log column in my shapefile
+nz_updated_shape %>%
+  qtm(.,fill = "log_Paid_employee_2018")
+```
+
+
+
+# Saving the new shapefile to a .gpk 
+```{r}
+nz_updated_shape%>% st_write(.,
+  "homework/wk1/nz_paid_workers_2018.gpkg",
+  layer = "Paid_workers_2018",
+  delete_dsn = TRUE
+)
+```
+# Make the connection to the gpkg
+
+```{r}
+library(readr)
+library(RSQLite)
+
+con <- dbConnect(RSQLite::SQLite(),dbname="homework/wk1/nz_paid_workers_2818.gpkg")
+```
+
+# list the tables inside, at the beginning it mught be empty 
+```{r}
+con %>%
+  dbListTables()
+```
+
+# we add the csv file and then disconnect from the DB 
+
+```{r}
+con %>%
+  dbWriteTable(.,
+               "original_csv",
+               paid_workers_csv,
+               overwrite = TRUE)
+
+con %>% dbDisconnect()
+```
+
+
+
+
