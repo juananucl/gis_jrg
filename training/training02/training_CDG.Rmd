@@ -1,0 +1,86 @@
+---
+title: "PracticeSession02"
+output: html_document
+date: "2026-11-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+We start by loading our libraries  
+```{r}
+library(tidyverse)
+library(janitor)
+```
+# GOAL 
+1. Extract a table of Guatemala City with age, population and sex and visual impairments
+2. Obatin a summary of the population per zones
+3. Obatin the density of population per zone 
+4. Join the information to the zones shapefile 
+
+
+Looking at the data types 
+```{r}
+# every text in na = c(...) is read as NA
+censo_gt <- read_csv("training/training02/guatemala_subset.csv",
+                             na = c("", "NA", "n/a", "N/A", "-"))
+```
+```{r}
+censo_gt %>% head(10)
+```
+
+```{r}
+names(censo_gt)
+censo_gt %>% distinct(MUNICIPIO)
+```
+
+Selecting only the data for Guatemala City and only taking the columns of interest: 
+
+PCP6 = Sex 
+1 Hombre 
+2 Mujer 
+
+
+PCP7 = Age 
+
+
+PCP16_A = Difficulty to see values from: 1-4 and 9 
+1 No, sin dificultad
+2 Sí, con algo de dificultad
+3 Sí, con mucha dificultad
+4 No puede
+9 No declarado
+
+```{r}
+censo_ciudad <-  censo_gt %>% select(MUNICIPIO, LUGAR_POBLADO, NOMBRE_LUGAR_POBLADO, PCP6, PCP7, PCP16_A) %>%
+  filter(MUNICIPIO == 101)
+
+```
+
+
+We are going to group by our zone to obtain the summary of statistics 
+
+```{r}
+
+censo_ciudad %>% distinct(NOMBRE_LUGAR_POBLADO)
+
+```
+Now we are going to obtain the summary of population per zone 
+```{r}
+
+population_summary <- censo_ciudad %>% group_by(NOMBRE_LUGAR_POBLADO) %>% summarise(Men = sum(PCP6 == 1), Women = sum(PCP6 == 2), Total_Pop = n()) %>% clean_names()
+
+```
+
+Now we want to extract the numbers from the text 
+```{r}
+population_summary<- population_summary %>% mutate(zona = str_remove(nombre_lugar_poblado, "Zona Municipal "))
+
+population_summary <- population_summary %>% select(zona, nombre_lugar_poblado, men, women, total_pop)
+```
+
+
