@@ -104,7 +104,7 @@ con %>%
   dbListTables()
 ```
 
-# we add the csv file and then disconnect from the DB 
+# we add the csv file and then disconnect from the Data base 
 
 ```{r}
 con %>%

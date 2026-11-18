@@ -76,7 +76,7 @@ population_summary <- censo_ciudad %>% group_by(NOMBRE_LUGAR_POBLADO) %>% summar
 
 ```
 
-Now we want to extract the numbers from the text 
+Now we want to extract the numbers of each zone from the text 
 ```{r}
 population_summary<- population_summary %>% mutate(zona = str_remove(nombre_lugar_poblado, "Zona Municipal "))
 
